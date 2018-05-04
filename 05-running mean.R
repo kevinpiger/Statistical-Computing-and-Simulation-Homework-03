@@ -27,15 +27,15 @@ paste("the minimum mse of k is",num)
 paste("the minimum mse is",min(mse))
 
 # plot
-
+d <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
 b <- running_mean(b, binwidth=which(mse==min(mse)))
 plot(b)
 model <- lm(b ~ poly(seq(0,2*pi, length=100-num+1),3))
 y <- fitted.values(model)
 lines(fitted.values(model))  # 模擬出來的資料線段
 lines(c)                     # 真實的線段
-data <- cbind(a[1:length(b)],b,c[1:length(b)])%>%as.data.frame()
-colnames(data) <- c("x","running mean","sin(x)")
+data <- cbind(a[1:length(b)],b,c[1:length(b)],d[1:length(b)])%>%as.data.frame()
+colnames(data) <- c("x","running mean","sin(x)","simulation")
 library(magrittr)
 data2 <- gather(data,key = "type",value = "value",2:3)
 data2$type %<>% as.factor()
@@ -45,7 +45,7 @@ ggplot(data2)+ labs(title = "Running mean of sin(x)")+
   geom_vline(xintercept = 0,size=1)+
   geom_hline(yintercept = 0,size=1)+
   geom_line(mapping = aes(x=x,y=value,color=type,group=type),lwd=1.87)+
-  geom_point(mapping = aes(x=x,y=value),color="blue",size=1)+
+  geom_point(mapping = aes(x=x,y=simulation),size=1)+
   theme(legend.text = element_text(size = 16))+
   theme(legend.position = c(0.8,0.8))+
   theme(legend.background = element_rect(size=0.5, linetype="solid",fill ="#FFFFF0",colour ="black"))+
@@ -60,18 +60,14 @@ a <- seq(0,2*pi, length=100)
 b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
 c <- sin(seq(0,2*pi, length=100))
 d <- c()
+
+# MSE
+c <- sin((a[-1]+a[-100])/2)
 for (i in 1:1000) {
 b <- NULL
 b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
 b1 <- running_mean(b, binwidth=2)
-d <- rbind(d,b1)
+MSE[i] <- mean((b1-c)^2)
 }
-# MSE
-bias <- c()
-var <- c()
-for (j in 1:100) {
-  bias[j] = mean(d[j,])-c[j] 
-  var[j] = var(d[j,])
-}
-MSE <- sum(bias^2)+sum(var) ; MSE
+MSE <- mean(MSE) ; MSE
 

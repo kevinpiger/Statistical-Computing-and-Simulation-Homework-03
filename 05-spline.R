@@ -6,7 +6,7 @@ library(broom)
 
 
 # plot
-df_values <- c(3, 4, 8, 16)
+df_values <- c(4, 9, 32, 64)
 
 x = seq(from=0, to=2*pi, length=100)
 f_x = sin(x)
@@ -54,10 +54,10 @@ a <- seq(0,2*pi, length=100)
 b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
 c <- sin(seq(0,2*pi, length=100))
 
-spline1 <- smooth.spline(x = b, df = 3)
-spline2 <- smooth.spline(x = b, df = 4)
-spline3 <- smooth.spline(x = b, df = 8)
-spline4 <- smooth.spline(x = b, df = 16)
+spline1 <- smooth.spline(x = b, df = 4)
+spline2 <- smooth.spline(x = b, df = 9)
+spline3 <- smooth.spline(x = b, df = 32)
+spline4 <- smooth.spline(x = b, df = 64)
 
 data<-ldply(list(spline1,spline2,spline3,spline4),get.spline.info)
 data <- cbind(a,b,c,data) %>% as.data.frame()
@@ -78,77 +78,109 @@ ggplot(data,aes(x=a))+ labs(title="Spline smoother of sin(x)") +
   theme(panel.background = element_rect(colour = "black",size=2))
  
 # 最後我們將各節點數分別計算MSE
-
-spline1$y
-# ns=3
-d <- c()
-for (i in 1:1000) {
-  b <- NULL
-  b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
-  b1 <- smooth.spline(x = b,df=3)$y
-  d <- rbind(d,b1)
-}
-# MSE
-bias <- c()
-var <- c()
-for (j in 1:100) {
-  bias[j] = mean(d[j,])-c[j] 
-  var[j] = var(d[j,])
-}
 MSE <- c()
-MSE[1] <- sum(bias^2)+sum(var) ; MSE
-
-# nodes=4
-d <- c()
+# ns=4
+# MSE
+mse <- c()
 for (i in 1:1000) {
   b <- NULL
   b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
   b1 <- smooth.spline(x = b,df=4)$y
-  d <- rbind(d,b1)
+  c <- sin(seq(0,2*pi, length=100))
+  mse[i] <- mean((b1-c)^2)
 }
-# MSE
-bias <- c()
-var <- c()
-for (j in 1:100) {
-  bias[j] = mean(d[j,])-c[j] 
-  var[j] = var(d[j,])
-}
-MSE[2] <- sum(bias^2)+sum(var) ; MSE
+MSE[1] <- mean(mse) ; MSE
 
-# nodes=8
-d <- c()
+
+# nodes=9
+mse <- c()
 for (i in 1:1000) {
   b <- NULL
   b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
-  b1 <- smooth.spline(x = b,df=8)$y
-  d <- rbind(d,b1)
+  b1 <- smooth.spline(x = b,df=9)$y
+  c <- sin(seq(0,2*pi, length=100))
+  mse[i] <- mean((b1-c)^2)
 }
-# MSE
-bias <- c()
-var <- c()
-for (j in 1:100) {
-  bias[j] = mean(d[j,])-c[j] 
-  var[j] = var(d[j,])
-}
-MSE[3] <- sum(bias^2)+sum(var) ; MSE
+MSE[2] <- mean(mse) ; MSE
 
-# nodes=16
-d <- c()
+# nodes=32
+mse <- c()
 for (i in 1:1000) {
   b <- NULL
   b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
-  b1 <- smooth.spline(x = b,df=16)$y
-  d <- rbind(d,b1)
+  b1 <- smooth.spline(x = b,df=32)$y
+  c <- sin(seq(0,2*pi, length=100))
+  mse[i] <- mean((b1-c)^2)
 }
-# MSE
-bias <- c()
-var <- c()
-for (j in 1:100) {
-  bias[j] = mean(d[j,])-c[j] 
-  var[j] = var(d[j,])
-}
-MSE[4] <- sum(bias^2)+sum(var) ; MSE
+MSE[3] <- mean(mse) ; MSE
 
+# nodes=64
+mse <- c()
+for (i in 1:1000) {
+  b <- NULL
+  b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
+  b1 <- smooth.spline(x = b,df=64)$y
+  c <- sin(seq(0,2*pi, length=100))
+  mse[i] <- mean((b1-c)^2)
+}
+MSE[4] <- mean(mse) ; MSE
+
+MSE <- c()
+for (j in 1:64) {
+  mse <- c()
+  for (i in 1:1000) {
+  b <- NULL
+  b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
+  b1 <- smooth.spline(x = b,df=j)$y
+  c <- sin(seq(0,2*pi, length=100))
+  mse[i] <- mean((b1-c)^2)
+  }
+  MSE[j] <- mean(mse)
+}
 # MSE比較
 MSE
-# 我們發現當節點為3的時候MSE較小其曲線也較為平滑 (怪怪)
+# 我們發現當節點為9的時候MSE較小
+which(MSE==min(MSE))
+# ggplot2
+a <- seq(0,2*pi, length=100)
+b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
+c <- smooth.spline(x = b,df=9)$y
+d <- sin(seq(0,2*pi, length=100))
+data <- cbind(a,b,c) %>% as.data.frame()
+ggplot(data,aes(x=a))+ labs(title="Spline smoother of sin(x) [df=9]") +
+  geom_line(aes(y=d),col="#ABCDEF",size=2)+
+  geom_point(aes(y=b))+
+  geom_vline(xintercept = 0,size=1)+
+  geom_hline(yintercept = 0,size=1)+
+  geom_line(mapping = aes(y=c),col="#0000BA",lwd=1.2)+
+  scale_color_discrete("The number of nodes")+
+  theme(legend.key.size = unit(1.5, "line"))+
+  theme(plot.title = element_text(size = 30, face = "bold"))+
+  theme(legend.title=element_text(size=24))+
+  theme(legend.text=element_text(size=20))+
+  theme(legend.position = c(0.8,0.8))+
+  theme(legend.background = element_rect(fill="#FFFFF0",colour = "black"))+
+  theme(panel.grid.major = element_line(NA),panel.grid.minor =element_line(NA))+
+  theme(panel.background = element_rect(colour = "black",size=2))
+
+# ggplot2
+a <- seq(0,2*pi, length=100)
+b <- sin(seq(0,2*pi, length=100)) + rnorm(100,0,0.09)
+c <- smooth.spline(x = b,df=9)$y
+d <- sin(seq(0,2*pi, length=100))
+data <- cbind(a,b,c) %>% as.data.frame()
+ggplot(data,aes(x=a))+ labs(title="Spline smoother of sin(x) [df=9]") +
+  geom_line(aes(y=d),col="#ABCDEF",size=2)+
+  geom_point(aes(y=b))+
+  geom_vline(xintercept = 0,size=1)+
+  geom_hline(yintercept = 0,size=1)+
+  geom_line(mapping = aes(y=c),col="#0000BA",lwd=1.2)+
+  scale_color_discrete("The number of nodes")+
+  theme(legend.key.size = unit(1.5, "line"))+
+  theme(plot.title = element_text(size = 30, face = "bold"))+
+  theme(legend.title=element_text(size=24))+
+  theme(legend.text=element_text(size=20))+
+  theme(legend.position = c(0.8,0.8))+
+  theme(legend.background = element_rect(fill="#FFFFF0",colour = "black"))+
+  theme(panel.grid.major = element_line(NA),panel.grid.minor =element_line(NA))+
+  theme(panel.background = element_rect(colour = "black",size=2))

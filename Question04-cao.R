@@ -100,7 +100,9 @@ ggplot(data = LBJ) + labs(title = "Density Estimation (h=0.1)")+
   geom_histogram(mapping = aes(x=sample,y=..density..),color="black",fill="gray",binwidth = 0.1)+
   geom_line(mapping = aes(x=sample,y=value,color=LineType,group=LineType),size=1.2)+
   theme(legend.title = element_text(colour="royalblue", size=20, face="bold"))+
-  theme(legend.text = element_text(size = 16))+
+  theme(plot.title = element_text(size = 30, face = "bold"))+
+  theme(legend.title=element_text(size=24))+
+  theme(legend.text=element_text(size=20))+
   theme(legend.position = c(0.87,0.6))+
   theme(legend.background = element_rect(fill="#FFFFF0",size=1, linetype="solid",colour ="darkblue"))+
   theme(panel.grid.major = element_blank())+
@@ -120,16 +122,17 @@ LBJ <- gather(data,key = "type",value = "value",2:5)
 colnames(LBJ) <- c("sample","LineType","value")  
 library(magrittr)
 LBJ$LineType %<>% as.factor()
-plot(sort(x),y1,typ="l",xlab="x",ylab="f(x)",xlim=c(0,1), ylim=c(0,3))
 library(ggplot2)
 ggplot(data = LBJ) + labs(title = "Density Estimation (h=0.2)")+
   xlim(0,1)+ ylim(0,2.5) +
   geom_histogram(mapping = aes(x=sample,y=..density..),color="black",fill="gray",binwidth = 0.2)+
   geom_line(mapping = aes(x=sample,y=value,color=LineType,group=LineType),size=1.2)+
   theme(legend.title = element_text(colour="royalblue", size=20, face="bold"))+
-  theme(legend.text = element_text(size = 16))+
   theme(legend.position = c(0.87,0.6))+
   theme(legend.background = element_rect(fill="#FFFFF0",size=1, linetype="solid",colour ="darkblue"))+
   theme(panel.grid.major = element_blank())+
   theme(panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 30, face = "bold"))+
+  theme(legend.title=element_text(size=24))+
+  theme(legend.text=element_text(size=20))+
   theme(panel.background = element_rect(fill="#EEFEFF",colour="black",size = 2))
